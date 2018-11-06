@@ -17,17 +17,17 @@ public class DirectoryTree {
      *      The cursor now references the root node of the tree.
      */
     public void resetCursor(){
+
         this.cursor = root;
+
     }
 
     /**
      * Moves the cursor to the directory with the name indicated by name.
      * @param name
      *          The name of the Node
-     * @throws NotADirectoryException
-     *      Thrown if the node with the indicated name is a file, as files cannot be selected by the cursor, or cannot be found.
      */
-    public void changeDirectory(String name) throws NotADirectoryException{
+    public void changeDirectory(String name) {
         try {
             changeDirectory(root, name);
         } catch (NotADirectoryException e){
@@ -46,8 +46,8 @@ public class DirectoryTree {
      *      The cursor remains at the same DirectoryNode.
      */
     public String presentWorkingDirectory(){
-        String wd = "";
-        DirectoryNode tracker = root;
+
+        return absolutePath(cursor);
     }
 
     /**
@@ -73,18 +73,29 @@ public class DirectoryTree {
     }
 
     public String listDirectory(DirectoryNode node){
-
-        if(node.isFile()){
-            return "-" + node.getName();
-        } else {
-            return "|- " + node.getName();
+        String ls = "";
+        if (node != null) {
+            if (node.isFile()) {
+                ls += "- " + node.getName() + "\n";
+            } else {
+                ls += "|- " + node.getName() + "\n";
+                ls += "    ";
+            }
+            if (node.getLeft() != null) {
+                ls += listDirectory(node.getLeft());
+            }
+            if (node.getMiddle() != null) {
+                ls += listDirectory(node.getMiddle());
+            }
+            if (node.getRight() != null) {
+                ls += listDirectory(node.getRight());
+            }
         }
-
-
+        return ls;
     }
 
     public void printDirectoryTree(){
-
+        System.out.println(listDirectory(cursor));
     }
 
     /**
@@ -96,6 +107,15 @@ public class DirectoryTree {
      */
     public void makeDirectory(String name) throws IllegalArgumentException, FullDirectoryException{ //mkdir
 
+        if (name.contains(" ") || name.contains("/")) throw new IllegalArgumentException();
+        if (cursor.isOccupied()) throw new FullDirectoryException();
+
+        DirectoryNode newDirectory = new DirectoryNode(name, false);
+        try {
+            cursor.addChild(newDirectory);
+        } catch (NotADirectoryException e) {
+            e.printStackTrace();
+        }
     }
 
     public void changeDirectory(DirectoryNode node, String name) throws NotADirectoryException{
@@ -117,8 +137,31 @@ public class DirectoryTree {
 
     }
 
-    public void preorder(DirectoryNode node){
+    public String absolutePath(DirectoryNode node) {
+        String path = "";
+        if (node != null) {
+            path += node.getName() + "/";
+        }
+        if (node.getParent() != null) {
+            path += absolutePath(node.getParent());
+        }
 
+        return path;
     }
 
+    public DirectoryNode getRoot() {
+        return root;
+    }
+
+    public void setRoot(DirectoryNode root) {
+        this.root = root;
+    }
+
+    public DirectoryNode getCursor() {
+        return cursor;
+    }
+
+    public void setCursor(DirectoryNode cursor) {
+        this.cursor = cursor;
+    }
 }
