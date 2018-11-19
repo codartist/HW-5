@@ -1,3 +1,8 @@
+/**
+ * Justin Fagan
+ * DirectoryNode
+ *id: 112089362
+ */
 public class DirectoryNode {
 
     private String name;
@@ -95,7 +100,7 @@ public class DirectoryNode {
             throw new NotADirectoryException();
         }
         if(isOccupied()){
-            throw new FullDirectoryException();
+            throw new FullDirectoryException("ERROR: Present directory is full.");
         }
         if (getLeft() == null){
             setLeft(newChild);

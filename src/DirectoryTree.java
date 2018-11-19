@@ -1,3 +1,8 @@
+/**
+ * Justin Fagan
+ * DirectoryTree
+ *id: 112089362
+ */
 public class DirectoryTree {
 
     private DirectoryNode root;
@@ -28,12 +33,21 @@ public class DirectoryTree {
      *          The name of the Node
      */
     public void changeDirectory(String name) {
-        try {
-            changeDirectory(root, name);
-        } catch (NotADirectoryException e){
-            e.printStackTrace();
-        }
 
+            if (name.equals("/"))
+                resetCursor();
+            if (name.equals("..") && cursor.getParent() != null){
+                cursor = cursor.getParent();
+            }
+            else if (cursor.getLeft() != null && cursor.getLeft().getName().equals(name)){
+                cursor = cursor.getLeft();
+            } else if(cursor.getMiddle() != null && cursor.getMiddle().getName().equals(name)){
+                cursor = cursor.getMiddle();
+            } else if(cursor.getRight() != null && cursor.getRight().getName().equals(name)){
+                cursor = cursor.getRight();
+            } else {
+                System.out.println("ERROR: No such directory named " + name);
+            }
     }
 
     /**
@@ -47,7 +61,8 @@ public class DirectoryTree {
      */
     public String presentWorkingDirectory(){
 
-        return absolutePath(cursor);
+        String path = absolutePath(cursor);
+        return reversePath(path);
     }
 
     /**
@@ -72,6 +87,11 @@ public class DirectoryTree {
 
     }
 
+    /**
+     * Recursively lists the directory and every descendant starting at the node
+     * @param node the node to start from
+     * @return A String with the path of the working directory
+     */
     public String listDirectory(DirectoryNode node){
         String ls = "";
         if (node != null) {
@@ -95,7 +115,9 @@ public class DirectoryTree {
     }
 
     public void printDirectoryTree(){
+
         System.out.println(listDirectory(cursor));
+
     }
 
     /**
@@ -131,22 +153,36 @@ public class DirectoryTree {
             } else if(node.getRight() != null){
                 changeDirectory(node.getRight(), name);
             } else {
-                System.out.println("Directory not found. Please enter another directory.");
+                System.out.println("ERROR: No such directory named " + name);
             }
         }
 
     }
 
+    /**
+     * Returns the working directory in reverse order
+     * @param node the node
+     * @return The reverse path separated by spaces
+     */
     public String absolutePath(DirectoryNode node) {
         String path = "";
         if (node != null) {
-            path += node.getName() + "/";
+            path += node.getName() + " ";
         }
         if (node.getParent() != null) {
             path += absolutePath(node.getParent());
         }
 
         return path;
+    }
+
+    public String reversePath(String path){
+        String reverse = "";
+        String[] directory = path.split(" ");
+        for (int i = directory.length-1 ; i >= 0 ; i--) {
+            reverse += directory[i] + "/";
+        }
+        return reverse;
     }
 
     public DirectoryNode getRoot() {
